@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <title>Super Cute Todo List - Polished & Persistent</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Montserrat:wght@400&display=swap');
+
+      :root {
+        --primary-color: #f48fb1;
+        --secondary-color: #ffe4e6;
+        --accent-color: #f8bbd0;
+        --high-priority: #ee6c4d;
+        --medium-priority: #f2a365;
+        --low-priority: #82c0cc;
+        --text-dark: #4a4a4a;
+        --text-light: #ffffff;
+        --border-radius: 14px;
+        --shadow-light: rgba(252, 205, 217, 0.7);
+        --font-family-primary: 'Montserrat', sans-serif;
+        --font-family-cute: 'Comic Neue', cursive;
+        --transition-time: 0.3s;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        background: linear-gradient(135deg, #fff0f6 0%, #ffe4e6 100%);
+        font-family: var(--font-family-primary);
+        margin: 0;
+        padding: 20px;
+        color: var(--text-dark);
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 100vh;
+      }
+
+      /* Container with soft shadow and rounded corners */
+      .container {
+        background: var(--text-light);
+        border-radius: var(--border-radius);
+        box-shadow: 0 14px 40px rgba(244, 143, 177, 0.25);
+        width: 100%;
+        max-width: 360px;
+        max-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        padding: 24px 24px 32px 24px;
+        overflow-y: auto;
+      }
+
+      h1 {
+        font-family: var(--font-family-cute);
+        font-weight: 700;
+        font-size: 2.2rem;
+        margin-bottom: 22px;
+        color: var(--primary-color);
+        text-align: center;
+        user-select: none;
+        text-shadow: 0 1px 6px rgba(244, 143, 177, 0.6);
+      }
+
+      /* Input group with neat spacing */
+      .input-group {
+        display: flex;
+        margin-bottom: 18px;
+        gap: 14px;
+      }
+
+      input[type='text'] {
+        flex-grow: 1;
+        min-width: 0;
+        border: 3px solid var(--primary-color);
+        border-radius: var(--border-radius);
+        padding: 12px 16px;
+        font-size: 1.15rem;
+        outline: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 10px rgba(244, 143, 177, 0.35);
+        font-weight: 600;
+        color: var(--text-dark);
+      }
+      input[type='text']:focus {
+        border-color: #f06292;
+        box-shadow: 0 0 12px #f06292;
+        background: #fff3f7;
+      }
+
+      select.priority-select {
+        width: 100px;
+        border: 3px solid var(--primary-color);
+        border-radius: var(--border-radius);
+        padding: 10px 8px;
+        font-size: 1.1rem;
+        background-color: var(--secondary-color);
+        color: var(--text-dark);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+        font-weight: 600;
+        box-shadow: 0 2px 10px rgba(244, 143, 177, 0.25);
+      }
+      select.priority-select:focus {
+        border-color: #f06292;
+        box-shadow: 0 0 12px #f06292;
+      }
+
+      button.add-btn {
+        width: 78px;
+        background: var(--primary-color);
+        border: none;
+        color: var(--text-light);
+        font-weight: 700;
+        font-size: 1.15rem;
+        padding: 12px 0;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        flex-shrink: 0;
+        box-shadow: 0 5px 18px rgba(244, 143, 177, 0.6);
+        user-select: none;
+      }
+      button.add-btn:hover {
+        background: #e7547f;
+        box-shadow: 0 0 14px #e7547f;
+        transform: scale(1.06);
+      }
+      button.add-btn:active {
+        transform: scale(0.95);
+      }
+
+      button.mark-all-btn {
+        background: var(--low-priority);
+        border: none;
+        border-radius: var(--border-radius);
+        padding: 8px 16px;
+        color: var(--text-light);
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 1rem;
+        margin-bottom: 18px;
+        align-self: flex-start;
+        transition: background-color 0.3s ease, box-shadow 0.3s ease,
+          transform 0.2s ease;
+        box-shadow: 0 4px 15px rgba(130, 192, 204, 0.7);
+        user-select: none;
+      }
+      button.mark-all-btn:hover:not(:disabled) {
+        background: #5fa7a9;
+        box-shadow: 0 0 14px #5fa7a9;
+        transform: scale(1.05);
+      }
+      button.mark-all-btn:disabled {
+        background: #cde6e9;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+      button.mark-all-btn:active:not(:disabled) {
+        transform: scale(0.97);
+      }
+
+      .export-import-btns {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 18px;
+        gap: 12px;
+      }
+      .export-import-btns button {
+        flex-grow: 1;
+        background: var(--accent-color);
+        border: none;
+        border-radius: var(--border-radius);
+        padding: 10px 14px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 1rem;
+        color: var(--primary-color);
+        transition: background-color 0.3s ease, box-shadow 0.3s ease,
+          transform 0.2s ease;
+        box-shadow: 0 3px 12px rgba(248, 187, 208, 0.6);
+        user-select: none;
+      }
+      .export-import-btns button:hover {
+        background: var(--primary-color);
+        color: var(--text-light);
+        box-shadow: 0 0 14px var(--primary-color);
+        transform: scale(1.05);
+      }
+      .export-import-btns button:active {
+        transform: scale(0.95);
+      }
+      .export-import-btns input[type='file'] {
+        display: none;
+      }
+
+      ul.todo-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        flex-grow: 1;
+        min-height: 150px;
+        max-height: 360px;
+        overflow-y: auto;
+
+        /* Hide scrollbars but keep scroll */
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE and Edge */
+      }
+      ul.todo-list::-webkit-scrollbar {
+        width: 0px; /* Chrome, Safari, Opera */
+      }
+
+      ul.todo-list li {
+        display: flex;
+        align-items: center;
+        background: var(--accent-color);
+        border-radius: var(--border-radius);
+        margin-bottom: 12px;
+        padding: 14px 16px;
+        box-shadow: 0 6px 25px rgba(248, 187, 208, 0.55);
+        cursor: default;
+        transition: background-color var(--transition-time) ease,
+          box-shadow var(--transition-time) ease,
+          opacity var(--transition-time) ease,
+          max-height var(--transition-time) ease,
+          padding var(--transition-time) ease, transform 0.2s ease;
+        position: relative;
+        overflow: hidden;
+        user-select: none;
+      }
+      ul.todo-list li:hover:not(.completed) {
+        background-color: #fcb1ca;
+        box-shadow: 0 12px 35px rgba(255 182 193 / 0.85);
+        transform: translateY(-2px);
+      }
+      ul.todo-list li:active:not(.completed) {
+        transform: translateY(1px);
+      }
+      ul.todo-list li.completed {
+        opacity: 0.5;
+        text-decoration: line-through;
+      }
+      ul.todo-list li.high-priority {
+        border-left: 6px solid var(--high-priority);
+      }
+      ul.todo-list li.medium-priority {
+        border-left: 6px solid var(--medium-priority);
+      }
+      ul.todo-list li.low-priority {
+        border-left: 6px solid var(--low-priority);
+      }
+
+      ul.todo-list li input[type='checkbox'] {
+        width: 24px;
+        height: 24px;
+        margin-right: 14px;
+        cursor: pointer;
+        flex-shrink: 0;
+      }
+
+      ul.todo-list li .todo-text {
+        flex-grow: 1;
+        font-size: 1.15rem;
+        user-select: text;
+        word-break: break-word;
+        font-weight: 600;
+        color: var(--text-dark);
+      }
+      ul.todo-list li.completed .todo-text {
+        color: #994359;
+        user-select: none;
+      }
+
+      ul.todo-list li .todo-text[contenteditable='true'] {
+        user-select: text;
+        outline: 3px solid var(--primary-color);
+        border-radius: var(--border-radius);
+        padding: 3px 8px;
+        background-color: #fff0f6;
+      }
+
+      ul.todo-list li button.delete-btn {
+        background: transparent;
+        border: none;
+        color: #c2185b;
+        font-weight: 700;
+        font-size: 1.6rem;
+        cursor: pointer;
+        padding: 0 8px;
+        transition: color 0.3s ease;
+        flex-shrink: 0;
+        user-select: none;
+        line-height: 1;
+      }
+
+      ul.todo-list li button.delete-btn:hover {
+        color: #880e4f;
+      }
+
+      ul.todo-list li.removing {
+        max-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        opacity: 0;
+        margin-bottom: 0;
+        pointer-events: none;
+        transition: all var(--transition-time) ease;
+      }
+
+      .footer {
+        margin-top: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 700;
+        font-size: 1.05rem;
+        color: var(--primary-color);
+      }
+
+      .footer button.clear-btn {
+        background: var(--primary-color);
+        border: none;
+        border-radius: var(--border-radius);
+        padding: 8px 14px;
+        color: var(--text-light);
+        font-weight: 700;
+        cursor: pointer;
+        transition: background-color 0.3s ease, box-shadow 0.3s ease,
+          transform 0.2s ease;
+        box-shadow: 0 6px 18px rgba(244, 143, 177, 0.7);
+        user-select: none;
+      }
+      .footer button.clear-btn:hover:not(:disabled) {
+        background: #e7547f;
+        box-shadow: 0 0 18px #e7547f;
+        transform: scale(1.06);
+      }
+      .footer button.clear-btn:disabled {
+        background: #f9b9ce;
+        cursor: not-allowed;
+        box-shadow: none;
+        transform: none;
+      }
+      .footer button.clear-btn:active:not(:disabled) {
+        transform: scale(0.93);
+      }
+
+      .search-container {
+        margin-bottom: 18px;
+        user-select: none;
+      }
+
+      input[type='search'] {
+        width: 100%;
+        border: 3px solid var(--primary-color);
+        border-radius: var(--border-radius);
+        padding: 12px 14px;
+        font-size: 1.15rem;
+        outline: none;
+        transition: all 0.3s ease;
+        background-color: var(--secondary-color);
+        font-weight: 600;
+        box-shadow: 0 3px 18px rgba(244, 143, 177, 0.3);
+      }
+
+      input[type='search']:focus {
+        border-color: #f06292;
+        box-shadow: 0 0 14px #f06292;
+        background: #fff3f7;
+      }
+
+      .motivational-quote {
+        text-align: center;
+        font-family: var(--font-family-cute);
+        color: var(--primary-color);
+        font-size: 1.2rem;
+        margin-top: 36px;
+        user-select: none;
+        opacity: 0.85;
+        transition: opacity 0.5s ease;
+      }
+
+      /* Animations */
+      @keyframes fadeInSlideDown {
+        0% {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      ul.todo-list li.added {
+        animation: fadeInSlideDown 0.4s ease forwards;
+      }
+
+      /* Statistics Dashboard */
+      .stats-dashboard {
+        margin-top: 24px;
+        padding-top: 18px;
+        border-top: 2px solid var(--accent-color);
+      }
+      .stats-dashboard h2 {
+        font-family: var(--font-family-cute);
+        font-weight: 700;
+        font-size: 1.6rem;
+        color: var(--primary-color);
+        margin-bottom: 20px;
+        text-align: center;
+      }
+      .chart-container {
+        margin-bottom: 32px;
+        position: relative;
+        height: 190px;
+      }
+      .chart-label {
+        text-align: center;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 8px;
+        font-family: var(--font-family-cute);
+        text-shadow: 0 1px 4px rgba(244, 143, 177, 0.5);
+      }
+      .streak-area {
+        text-align: center;
+        font-weight: 700;
+        color: var(--primary-color);
+        font-family: var(--font-family-cute);
+        margin-bottom: 24px;
+        font-size: 1.1rem;
+        text-shadow: 0 1px 6px rgba(244, 143, 177, 0.6);
+      }
+
+      /* Mobile adjustments */
+      @media (max-width: 400px) {
+        body {
+          padding: 10px;
+        }
+        .container {
+          width: 100%;
+          max-width: 100%;
+          max-height: 100vh;
+          padding: 20px 20px 28px 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      class="container"
+      role="application"
+      aria-label="Super cute todo list app with polished style and persistent storage"
+    >
+      <h1>My Super Cute Todo List</h1>
+
+      <div class="search-container">
+        <input
+          type="search"
+          id="search-input"
+          placeholder="Search todos..."
+          aria-label="Search todos"
+        />
+      </div>
+
+      <div class="input-group">
+        <input
+          type="text"
+          id="todo-input"
+          placeholder="Add a new cute todo..."
+          aria-label="New todo input"
+          maxlength="100"
+        />
+        <select
+          class="priority-select"
+          id="priority-select"
+          aria-label="Select todo priority"
+        >
+          <option value="low" selected>Low 💙</option>
+          <option value="medium">Medium 💛</option>
+          <option value="high">High ❤️</option>
+        </select>
+        <button class="add-btn" id="add-btn" aria-label="Add todo">Add</button>
+      </div>
+
+      <button
+        class="mark-all-btn"
+        id="mark-all-btn"
+        aria-label="Mark all todos as completed"
+      >
+        Mark All Complete ✔️
+      </button>
+
+      <div class="export-import-btns">
+        <button id="export-btn" aria-label="Export todos to JSON">
+          Export Todos 💾
+        </button>
+        <button id="import-btn" aria-label="Import todos from JSON">
+          Import Todos 📂
+        </button>
+        <input
+          type="file"
+          id="import-file"
+          accept="application/json"
+          aria-hidden="true"
+        />
+      </div>
+
+      <ul
+        class="todo-list"
+        id="todo-list"
+        aria-live="polite"
+        aria-relevant="additions removals"
+      ></ul>
+
+      <div class="footer">
+        <div id="todo-count">0 tasks left</div>
+        <button class="clear-btn" id="clear-btn" disabled aria-disabled="true">
+          Clear Completed
+        </button>
+      </div>
+
+      <div
+        class="motivational-quote"
+        id="motivational-quote"
+        aria-live="polite"
+        aria-atomic="true"
+      ></div>
+
+      <section class="stats-dashboard" aria-label="Statistics Dashboard">
+        <h2>Statistics Dashboard 📊</h2>
+
+        <div class="chart-label">Completed vs Remaining Tasks</div>
+        <div class="chart-container">
+          <canvas
+            id="completed-tasks-chart"
+            aria-label="Chart of completed vs remaining tasks"
+          ></canvas>
+        </div>
+
+        <div
+          class="streak-area"
+          id="streak-text"
+          aria-live="polite"
+          aria-atomic="true"
+        ></div>
+        <div class="chart-label">Productivity Streak</div>
+        <div class="chart-container">
+          <canvas
+            id="streak-chart"
+            aria-label="Chart of productivity streak"
+          ></canvas>
+        </div>
+
+        <div class="chart-label">Todos Completed Last 7 Days</div>
+        <div class="chart-container">
+          <canvas
+            id="time-spent-chart"
+            aria-label="Chart of todo completions over last 7 days"
+          ></canvas>
+        </div>
+      </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      ;(function () {
+        // Elements
+        const todoInput = document.getElementById('todo-input')
+        const addBtn = document.getElementById('add-btn')
+        const todoList = document.getElementById('todo-list')
+        const todoCount = document.getElementById('todo-count')
+        const clearBtn = document.getElementById('clear-btn')
+        const markAllBtn = document.getElementById('mark-all-btn')
+        const searchInput = document.getElementById('search-input')
+        const prioritySelect = document.getElementById('priority-select')
+        const quoteEl = document.getElementById('motivational-quote')
+        const exportBtn = document.getElementById('export-btn')
+        const importBtn = document.getElementById('import-btn')
+        const importFileInput = document.getElementById('import-file')
+        const streakText = document.getElementById('streak-text')
+
+        // Chart elements
+        const completedChartCtx = document
+          .getElementById('completed-tasks-chart')
+          .getContext('2d')
+        const streakChartCtx = document
+          .getElementById('streak-chart')
+          .getContext('2d')
+        const timeSpentChartCtx = document
+          .getElementById('time-spent-chart')
+          .getContext('2d')
+
+        // Audio for clicks and deletes etc
+        let audioCtx
+        function initAudioCtx() {
+          if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+          }
+        }
+        function playClickSound() {
+          initAudioCtx()
+          const oscillator = audioCtx.createOscillator()
+          const gainNode = audioCtx.createGain()
+          oscillator.type = 'triangle'
+          oscillator.frequency.setValueAtTime(480, audioCtx.currentTime)
+          gainNode.gain.setValueAtTime(0.12, audioCtx.currentTime)
+          oscillator.connect(gainNode)
+          gainNode.connect(audioCtx.destination)
+          oscillator.start()
+          oscillator.stop(audioCtx.currentTime + 0.07)
+        }
+        function playDeleteSound() {
+          initAudioCtx()
+          const osc1 = audioCtx.createOscillator()
+          const osc2 = audioCtx.createOscillator()
+          const gainNode = audioCtx.createGain()
+
+          osc1.type = 'sine'
+          osc1.frequency.setValueAtTime(300, audioCtx.currentTime)
+          osc2.type = 'sine'
+          osc2.frequency.setValueAtTime(400, audioCtx.currentTime)
+          gainNode.gain.setValueAtTime(0.12, audioCtx.currentTime)
+
+          osc1.connect(gainNode)
+          osc2.connect(gainNode)
+          gainNode.connect(audioCtx.destination)
+          osc1.start()
+          osc2.start()
+
+          osc1.frequency.exponentialRampToValueAtTime(
+            50,
+            audioCtx.currentTime + 0.15
+          )
+          osc2.frequency.exponentialRampToValueAtTime(
+            30,
+            audioCtx.currentTime + 0.15
+          )
+
+          osc1.stop(audioCtx.currentTime + 0.15)
+          osc2.stop(audioCtx.currentTime + 0.15)
+        }
+        function playCompleteSound() {
+          initAudioCtx()
+          const osc = audioCtx.createOscillator()
+          const gainNode = audioCtx.createGain()
+          osc.type = 'square'
+          osc.frequency.setValueAtTime(640, audioCtx.currentTime)
+          gainNode.gain.setValueAtTime(0.12, audioCtx.currentTime)
+          osc.connect(gainNode)
+          gainNode.connect(audioCtx.destination)
+          osc.start()
+          osc.stop(audioCtx.currentTime + 0.12)
+        }
+
+        // Cute motivational quotes array:
+        const quotes = [
+          '🌸 You got this! One task at a time.',
+          '💖 Every little step counts!',
+          '☀️ Bright days are ahead.',
+          '🌈 Keep smiling and ticking off tasks!',
+          '🐰 Hop to it! Cutie todo champ!',
+          '✧･ﾟ: *✧･ﾟ:* You shine with every done todo! *:･ﾟ✧*:･ﾟ✧',
+        ]
+
+        let todos = []
+        let filteredTodos = []
+        let editingIndex = null
+
+        // Storage keys
+        const STORAGE_KEY = 'super_cute_todos'
+        const STREAK_KEY = 'super_cute_todos_streaks'
+
+        // Load todos from LocalStorage
+        function loadTodos() {
+          const saved = localStorage.getItem(STORAGE_KEY)
+          if (saved) {
+            todos = JSON.parse(saved)
+          } else {
+            todos = []
+          }
+        }
+
+        // Save todos to LocalStorage
+        function saveTodos() {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(todos))
+        }
+
+        // Load streak data from localStorage
+        let completionHistory = {}
+        function loadCompletionHistory() {
+          const saved = localStorage.getItem(STREAK_KEY)
+          if (saved) {
+            try {
+              completionHistory = JSON.parse(saved)
+            } catch {
+              completionHistory = {}
+            }
+          } else {
+            completionHistory = {}
+          }
+        }
+        function saveCompletionHistory() {
+          localStorage.setItem(STREAK_KEY, JSON.stringify(completionHistory))
+        }
+
+        function getTodayDateStr() {
+          const now = new Date()
+          return now.toISOString().slice(0, 10)
+        }
+
+        function updateCompletionHistoryOnComplete() {
+          const today = getTodayDateStr()
+          if (!completionHistory[today]) completionHistory[today] = 0
+          completionHistory[today]++
+          saveCompletionHistory()
+        }
+
+        function calcLongestStreak() {
+          const dates = Object.keys(completionHistory).filter(
+            (dateStr) => completionHistory[dateStr] > 0
+          )
+          if (dates.length === 0) return 0
+          dates.sort()
+
+          let longestStreak = 1
+          let currentStreak = 1
+
+          for (let i = 1; i < dates.length; i++) {
+            const prevDate = new Date(dates[i - 1])
+            const currentDate = new Date(dates[i])
+            const diffDays = (currentDate - prevDate) / (1000 * 60 * 60 * 24)
+            if (diffDays === 1) {
+              currentStreak++
+              if (currentStreak > longestStreak) longestStreak = currentStreak
+            } else {
+              currentStreak = 1
+            }
+          }
+          return longestStreak
+        }
+
+        function getLast7DaysLabels() {
+          const labels = []
+          for (let i = 6; i >= 0; i--) {
+            const d = new Date()
+            d.setDate(d.getDate() - i)
+            labels.push(d.toLocaleDateString(undefined, { weekday: 'short' }))
+          }
+          return labels
+        }
+
+        function getLast7DaysCompletions() {
+          const completions = []
+          for (let i = 6; i >= 0; i--) {
+            const d = new Date()
+            d.setDate(d.getDate() - i)
+            const dateStr = d.toISOString().slice(0, 10)
+            completions.push(completionHistory[dateStr] || 0)
+          }
+          return completions
+        }
+
+        // UI update functions
+
+        function pickRandomQuote() {
+          if (todos.length === 0) {
+            const q = quotes[Math.floor(Math.random() * quotes.length)]
+            quoteEl.textContent = q
+            quoteEl.style.opacity = '1'
+          } else {
+            quoteEl.style.opacity = '0'
+            setTimeout(() => (quoteEl.textContent = ''), 400)
+          }
+        }
+
+        function updateTodoCount() {
+          const leftCount = todos.filter((t) => !t.completed).length
+          todoCount.textContent =
+            leftCount + (leftCount === 1 ? ' task left' : ' tasks left')
+        }
+
+        function toggleClearButton() {
+          const completedExist = todos.some((t) => t.completed)
+          clearBtn.disabled = !completedExist
+          clearBtn.setAttribute('aria-disabled', !completedExist)
+        }
+
+        let completedTasksChart, streakChart, timeSpentChart
+
+        function renderCharts() {
+          const completedCount = todos.filter((t) => t.completed).length
+          const remainingCount = todos.length - completedCount
+          const completedData = [completedCount, remainingCount]
+
+          if (!completedTasksChart) {
+            completedTasksChart = new Chart(completedChartCtx, {
+              type: 'doughnut',
+              data: {
+                labels: ['Completed', 'Remaining'],
+                datasets: [
+                  {
+                    data: completedData,
+                    backgroundColor: [
+                      'rgba(244,143,177,0.95)',
+                      'rgba(248,187,208,0.3)',
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 8,
+                  },
+                ],
+              },
+              options: {
+                cutout: '75%',
+                plugins: {
+                  legend: {
+                    position: 'bottom',
+                    labels: { font: { weight: '600' } },
+                  },
+                  tooltip: { enabled: true },
+                },
+                responsive: true,
+                maintainAspectRatio: false,
+              },
+            })
+          } else {
+            completedTasksChart.data.datasets[0].data = completedData
+            completedTasksChart.update()
+          }
+
+          const longestStreak = calcLongestStreak()
+          const streakData = [longestStreak]
+          streakText.textContent =
+            longestStreak > 0
+              ? `Your longest productivity streak: ${longestStreak} day${
+                  longestStreak > 1 ? 's' : ''
+                } 🎉`
+              : `Start completing todos to build your productivity streak! 🚀`
+
+          if (!streakChart) {
+            streakChart = new Chart(streakChartCtx, {
+              type: 'bar',
+              data: {
+                labels: ['Longest Streak'],
+                datasets: [
+                  {
+                    label: 'Days',
+                    data: streakData,
+                    backgroundColor: 'rgba(248,187,208,0.95)',
+                    borderRadius: 8,
+                    barPercentage: 0.6,
+                    borderSkipped: false,
+                  },
+                ],
+              },
+              options: {
+                indexAxis: 'y',
+                scales: {
+                  x: {
+                    min: 0,
+                    suggestedMax: Math.max(7, longestStreak + 1),
+                    ticks: { stepSize: 1 },
+                    grid: { color: 'rgba(244,143,177,0.3)' },
+                  },
+                  y: {
+                    grid: { display: false },
+                  },
+                },
+                plugins: {
+                  legend: { display: false },
+                  tooltip: { enabled: true },
+                },
+                responsive: true,
+                maintainAspectRatio: false,
+              },
+            })
+          } else {
+            streakChart.data.datasets[0].data = streakData
+            streakChart.options.scales.x.suggestedMax = Math.max(
+              7,
+              longestStreak + 1
+            )
+            streakChart.update()
+          }
+
+          const last7Labels = getLast7DaysLabels()
+          const last7Completions = getLast7DaysCompletions()
+          if (!timeSpentChart) {
+            timeSpentChart = new Chart(timeSpentChartCtx, {
+              type: 'line',
+              data: {
+                labels: last7Labels,
+                datasets: [
+                  {
+                    label: 'Todos Completed',
+                    data: last7Completions,
+                    fill: true,
+                    backgroundColor: 'rgba(244,143,177,0.3)',
+                    borderColor: 'rgba(244,143,177,0.95)',
+                    tension: 0.5,
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    borderWidth: 3,
+                  },
+                ],
+              },
+              options: {
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1, precision: 0 },
+                    grid: { color: 'rgba(244,143,177,0.3)' },
+                  },
+                  x: {
+                    grid: { color: 'rgba(244,143,177,0.3)' },
+                  },
+                },
+                plugins: {
+                  legend: {
+                    position: 'top',
+                    labels: { font: { weight: '600' } },
+                  },
+                  tooltip: { enabled: true },
+                },
+                responsive: true,
+                maintainAspectRatio: false,
+              },
+            })
+          } else {
+            timeSpentChart.data.labels = last7Labels
+            timeSpentChart.data.datasets[0].data = last7Completions
+            timeSpentChart.update()
+          }
+        }
+
+        function renderTodos() {
+          const searchTerm = searchInput.value.trim().toLowerCase()
+          filteredTodos = todos.filter((todo) =>
+            todo.text.toLowerCase().includes(searchTerm)
+          )
+          todoList.innerHTML = ''
+
+          if (filteredTodos.length === 0 && todos.length > 0) {
+            const noResultsLi = document.createElement('li')
+            noResultsLi.textContent = 'No todos match your search 😿'
+            noResultsLi.style.textAlign = 'center'
+            noResultsLi.style.opacity = '0.5'
+            noResultsLi.style.fontStyle = 'italic'
+            todoList.appendChild(noResultsLi)
+          }
+
+          filteredTodos.forEach((todo) => {
+            const index = todos.indexOf(todo)
+            const li = document.createElement('li')
+            li.className = `${todo.completed ? 'completed' : ''} ${
+              todo.priority
+            }-priority`
+            li.classList.add('added')
+            li.setAttribute('data-index', index)
+
+            const checkbox = document.createElement('input')
+            checkbox.type = 'checkbox'
+            checkbox.checked = todo.completed
+            checkbox.setAttribute(
+              'aria-label',
+              todo.completed
+                ? 'Mark todo as incomplete'
+                : 'Mark todo as completed'
+            )
+            checkbox.addEventListener('change', () => {
+              const prevCompleted = todos[index].completed
+              todos[index].completed = checkbox.checked
+              if (checkbox.checked && !prevCompleted) {
+                todos[index].completedAt = new Date().toISOString()
+                updateCompletionHistoryOnComplete()
+              } else if (!checkbox.checked) {
+                todos[index].completedAt = null
+              }
+              saveTodos()
+              renderTodos()
+              if (checkbox.checked) playCompleteSound()
+              else playClickSound()
+            })
+
+            const span = document.createElement('span')
+            span.textContent = todo.text
+            span.className = 'todo-text'
+            span.setAttribute('tabindex', '0')
+            span.setAttribute('role', 'textbox')
+            span.setAttribute(
+              'aria-label',
+              'Todo item text. Click or press enter to edit.'
+            )
+            span.addEventListener('click', () => activateEdit(span, index))
+            span.addEventListener('keydown', (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                activateEdit(span, index)
+              }
+            })
+
+            const deleteBtn = document.createElement('button')
+            deleteBtn.textContent = '✕'
+            deleteBtn.className = 'delete-btn'
+            deleteBtn.setAttribute('aria-label', 'Delete todo')
+            deleteBtn.addEventListener('click', () => {
+              playDeleteSound()
+              li.classList.add('removing')
+              li.style.pointerEvents = 'none'
+              setTimeout(() => {
+                todos.splice(index, 1)
+                saveTodos()
+                renderTodos()
+              }, 300)
+            })
+
+            li.appendChild(checkbox)
+            li.appendChild(span)
+            li.appendChild(deleteBtn)
+
+            todoList.appendChild(li)
+          })
+          updateTodoCount()
+          toggleClearButton()
+          pickRandomQuote()
+          renderCharts()
+        }
+
+        function activateEdit(spanEl, index) {
+          if (editingIndex !== null) return
+          editingIndex = index
+          spanEl.contentEditable = 'true'
+          spanEl.focus()
+
+          document.execCommand('selectAll', false, null)
+          document.getSelection().collapseToEnd()
+
+          function finishEdit() {
+            spanEl.contentEditable = 'false'
+            let newText = spanEl.textContent.trim()
+            if (newText.length === 0) {
+              todos.splice(index, 1)
+            } else {
+              todos[index].text = newText.slice(0, 100)
+            }
+            saveTodos()
+            editingIndex = null
+            renderTodos()
+            cleanup()
+          }
+          function onKeyDown(e) {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              spanEl.blur()
+            } else if (e.key === 'Escape') {
+              spanEl.textContent = todos[index].text
+              editingIndex = null
+              spanEl.contentEditable = 'false'
+              cleanup()
+            }
+          }
+          function cleanup() {
+            spanEl.removeEventListener('blur', finishEdit)
+            spanEl.removeEventListener('keydown', onKeyDown)
+          }
+
+          spanEl.addEventListener('blur', finishEdit)
+          spanEl.addEventListener('keydown', onKeyDown)
+        }
+
+        function addTodo() {
+          const text = todoInput.value.trim()
+          if (text === '') return
+          const priority = prioritySelect.value
+          const newTodo = { text, completed: false, priority }
+          todos.push(newTodo)
+          saveTodos()
+          playClickSound()
+          renderTodos()
+          todoInput.value = ''
+          todoInput.focus()
+        }
+
+        function markAllComplete() {
+          const newlyCompleted = todos.filter((t) => !t.completed)
+          const todayStr = getTodayDateStr()
+          todos.forEach((t) => {
+            if (!t.completed) {
+              t.completed = true
+              t.completedAt = new Date().toISOString()
+            }
+          })
+          if (!completionHistory[todayStr]) completionHistory[todayStr] = 0
+          completionHistory[todayStr] += newlyCompleted.length
+          saveCompletionHistory()
+          saveTodos()
+          playCompleteSound()
+          renderTodos()
+        }
+
+        addBtn.addEventListener('click', addTodo)
+        todoInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            addTodo()
+          }
+        })
+        searchInput.addEventListener('input', renderTodos)
+
+        clearBtn.addEventListener('click', () => {
+          todos = todos.filter((t) => !t.completed)
+          saveTodos()
+          renderTodos()
+        })
+
+        markAllBtn.addEventListener('click', () => {
+          markAllComplete()
+        })
+
+        exportBtn.addEventListener('click', () => {
+          if (todos.length === 0) {
+            alert('No todos to export!')
+            return
+          }
+          const dataStr = JSON.stringify(todos, null, 2)
+          const blob = new Blob([dataStr], { type: 'application/json' })
+          const url = URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.href = url
+          a.download = 'cute_todos.json'
+          a.click()
+          URL.revokeObjectURL(url)
+        })
+
+        importBtn.addEventListener('click', () => {
+          importFileInput.value = null
+          importFileInput.click()
+        })
+
+        importFileInput.addEventListener('change', () => {
+          if (importFileInput.files.length === 0) return
+          const file = importFileInput.files[0]
+          const reader = new FileReader()
+          reader.onload = function (e) {
+            try {
+              const importedTodos = JSON.parse(e.target.result)
+              if (
+                Array.isArray(importedTodos) &&
+                importedTodos.every(
+                  (t) =>
+                    typeof t.text === 'string' &&
+                    typeof t.completed === 'boolean' &&
+                    (t.priority === 'low' ||
+                      t.priority === 'medium' ||
+                      t.priority === 'high')
+                )
+              ) {
+                todos = importedTodos.slice(0, 100)
+                saveTodos()
+                alert('Todos imported successfully!')
+                renderTodos()
+              } else {
+                throw new Error('Invalid todo data')
+              }
+            } catch (err) {
+              alert('Invalid JSON file. Please import a valid todo list JSON.')
+            }
+          }
+          reader.readAsText(file)
+        })
+
+        loadCompletionHistory()
+        loadTodos()
+        renderTodos()
+      })()
+    </script>
+  </body>
+</html>
